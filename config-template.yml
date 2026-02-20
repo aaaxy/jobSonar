@@ -1,0 +1,33 @@
+search:
+  keywords:
+    - "software engineer"
+    - "backend developer"
+    - "full stack engineer"
+  location: "United States"
+  distance: 50  # miles
+  job_type: "fulltime"
+  remote_only: false
+  results_per_source: 25
+  hours_old: 24  # only jobs posted in last 24h
+
+company_pages:  # optional direct career page URLs
+  # - url: "https://boards.greenhouse.io/somecompany"
+  #   name: "SomeCompany"
+
+llm:
+  provider: "claude"  # claude | openai | gemini
+  model: "claude-haiku-4-5-20251001"  # cheapest, fast enough for scoring
+
+email:
+  to: "user@example.com"
+  from: "Job Agent <jobs@yourdomain.com>"
+  top_n: 20  # number of top-ranked jobs to include in digest
+
+scoring:
+  min_score: 60  # only include jobs scoring >= this in the email
+  batch_size: 5  # number of jobs per LLM call
+
+google_sheets:
+  sheet_id: "YOUR_GOOGLE_SHEET_ID_HERE"  # from the sheet URL
+  job_matches_tab: "Job Matches"
+  stats_tab: "Stats"

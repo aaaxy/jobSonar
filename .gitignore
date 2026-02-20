@@ -1,0 +1,24 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# IDE
+.idea/
+
+# macOS
+.DS_Store
+
+# Environment / secrets
+.env
+*.pdf
+config.yml
+
+# Claude Code
+.claude/
+
+# Generated data (intermediate pipeline files)
+data/raw_jobs.json
+data/new_jobs.json
+data/ranked_jobs.json
+data/email_preview.html
