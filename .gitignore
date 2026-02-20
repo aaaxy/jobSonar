@@ -11,14 +11,16 @@ __pycache__/
 
 # Environment / secrets
 .env
-*.pdf
 config.yml
+credentials*.json
+
+# Resume (may contain personal info)
+*.pdf
+*.docx
+resume.txt
 
 # Claude Code
 .claude/
 
-# Generated data (intermediate pipeline files)
-data/raw_jobs.json
-data/new_jobs.json
-data/ranked_jobs.json
-data/email_preview.html
+# Generated data (pipeline outputs + personal job search history)
+data/
