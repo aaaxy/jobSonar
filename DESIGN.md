@@ -172,10 +172,11 @@ Both tabs are auto-created with headers and formulas if they don't exist.
 ## GitHub Actions Workflow
 
 `.github/workflows/daily_search.yml`:
-- **Schedule**: `0 14 * * *` (10 AM ET daily)
-- **Manual trigger**: `workflow_dispatch` for testing
+- **Schedule**: `0 14 * * *` (10 AM ET daily), gated by `vars.ENABLE_CRON == 'true'`
+- **Manual trigger**: `workflow_dispatch` — always available, regardless of the cron toggle
 - **Steps**: checkout → setup Python 3.11 → install deps → write `config.yml` from `CONFIG_YML` secret → run all 5 pipeline scripts sequentially → commit & push updated `data/` files
 - `config.yml` is gitignored (contains personal info); the workflow writes it at runtime from a GitHub Secret
+- The daily cron is off by default so users can test via manual dispatch first; set the `ENABLE_CRON` repo variable to `true` to activate it
 - Scripts run in order with env vars injected from GitHub Secrets
 
 ---

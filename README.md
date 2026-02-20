@@ -64,7 +64,14 @@ Add these secrets to your GitHub repo (Settings → Secrets → Actions):
 
 ### 6. Deploy
 
-Push to GitHub. The workflow runs daily at 10 AM ET, or trigger manually from Actions tab.
+Push to GitHub. You can trigger the workflow manually from the Actions tab at any time.
+
+The daily cron is **off by default**. Once you've tested the pipeline and are happy with the results, enable it:
+
+1. Go to repo Settings → Secrets and variables → Actions → **Variables** tab
+2. New repository variable: Name = `ENABLE_CRON`, Value = `true`
+
+To pause the daily automation later, set `ENABLE_CRON` to any other value or delete it.
 
 ## Local testing
 
