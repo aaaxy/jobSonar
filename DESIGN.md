@@ -174,7 +174,8 @@ Both tabs are auto-created with headers and formulas if they don't exist.
 `.github/workflows/daily_search.yml`:
 - **Schedule**: `0 14 * * *` (10 AM ET daily)
 - **Manual trigger**: `workflow_dispatch` for testing
-- **Steps**: checkout → setup Python 3.11 → install deps → run all 5 pipeline scripts sequentially → commit & push updated `data/` files
+- **Steps**: checkout → setup Python 3.11 → install deps → write `config.yml` from `CONFIG_YML` secret → run all 5 pipeline scripts sequentially → commit & push updated `data/` files
+- `config.yml` is gitignored (contains personal info); the workflow writes it at runtime from a GitHub Secret
 - Scripts run in order with env vars injected from GitHub Secrets
 
 ---
@@ -206,6 +207,7 @@ Both tabs are auto-created with headers and formulas if they don't exist.
 | `GOOGLE_API_KEY` | If using Gemini | Generous free tier |
 | `SENDGRID_API_KEY` | Yes | 100 emails/day free |
 | `GOOGLE_CREDENTIALS` | Yes | Free (service account JSON) |
+| `CONFIG_YML` | Yes | Full contents of `config.yml` |
 
 ---
 

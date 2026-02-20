@@ -60,6 +60,7 @@ Add these secrets to your GitHub repo (Settings → Secrets → Actions):
 | `GOOGLE_API_KEY` | If using Gemini | Free tier |
 | `SENDGRID_API_KEY` | Yes | 100 emails/day free |
 | `GOOGLE_CREDENTIALS` | Yes | Service account JSON contents |
+| `CONFIG_YML` | Yes | Paste full contents of your `config.yml` |
 
 ### 6. Deploy
 

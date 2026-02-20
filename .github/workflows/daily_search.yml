@@ -16,6 +16,13 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      - name: Write config file
+        run: |
+          echo "$CONFIG_YML" > config.yml
+          python -c "import yaml; yaml.safe_load(open('config.yml'))" || { echo "ERROR: invalid config"; exit 1; }
+        env:
+          CONFIG_YML: ${{ secrets.CONFIG_YML }}
+
       - name: Run pipeline
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
