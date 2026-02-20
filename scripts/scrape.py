@@ -157,6 +157,7 @@ def main():
     print(f"\nTotal unique jobs scraped: {len(all_jobs)}")
 
     # Save to data/raw_jobs.json
+    os.makedirs(DATA_DIR, exist_ok=True)
     output_path = os.path.join(DATA_DIR, "raw_jobs.json")
     with open(output_path, "w") as f:
         json.dump(all_jobs, f, indent=2)

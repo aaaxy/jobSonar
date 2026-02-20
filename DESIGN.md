@@ -14,7 +14,7 @@ GitHub Actions (daily cron)
   ├─ 1. SCRAPE ──→ JobSpy (LinkedIn, Indeed, Glassdoor) + company career pages
   │                 Output: data/raw_jobs.json
   │
-  ├─ 2. DEDUP ───→ Filter out previously seen jobs (data/seen_jobs.json)
+  ├─ 2. DEDUP ───→ Filter out previously seen jobs (via Google Sheets)
   │                 Output: data/new_jobs.json
   │
   ├─ 3. RANK ────→ LLM scores each job vs resume (Claude / OpenAI / Gemini)
@@ -23,7 +23,7 @@ GitHub Actions (daily cron)
   ├─ 4. PUSH ────→ Format top N jobs → send email digest (SendGrid)
   │                 Output: email sent
   │
-  └─ 5. TRACK ───→ Append ranked jobs to Google Sheet + update seen_jobs.json
+  └─ 5. TRACK ───→ Append ranked jobs to Google Sheet
                     User edits status/notes directly in Google Sheets
 ```
 
@@ -57,11 +57,11 @@ All results are deduplicated by URL within the run and written to `data/raw_jobs
 
 ## Step 2: Dedup (`scripts/dedup.py`)
 
-- Loads `data/seen_jobs.json` — a dictionary mapping URL hashes to metadata (title, company, date first seen)
-- URL hashes use SHA-256 truncated to 16 hex chars
-- Any scraped job whose URL hash is already in the set is filtered out
+- Fetches all Apply Link URLs (column H) from the "Job Matches" tab in Google Sheets
+- Any scraped job whose URL is already in the sheet is filtered out
 - Only genuinely new jobs proceed to the ranking step
 - This prevents wasting LLM API calls on already-scored jobs and prevents the same listing from appearing in multiple daily digests
+- Graceful degradation: if credentials are missing, the sheet is unconfigured, or the API is unreachable, all jobs are treated as new
 
 ### Output
 
@@ -134,7 +134,7 @@ Rendered from `templates/email_digest.html` using Jinja2:
 
 ### Google Sheets (primary user-facing storage)
 
-Uses `gspread` + Google Service Account (free).
+Uses `gspread` + Google Service Account (free). Auth logic is shared with `dedup.py` via `scripts/sheets.py`.
 
 **Tab 1: "Job Matches"** — auto-populated by the pipeline:
 
@@ -144,6 +144,7 @@ Uses `gspread` + Google Service Account (free).
 - Pipeline appends new ranked jobs (above `min_score`) daily
 - User manually updates `Status` and `Notes` columns
 - Status flow: `new` → `applied` → `interview` → `offer` / `rejected` / `passed`
+- The Apply Link column (H) is also used by the dedup step as the single source of truth for previously seen jobs
 
 **Tab 2: "Stats"** — auto-updated with COUNTIF/COUNTIFS formulas:
 
@@ -160,13 +161,6 @@ Uses `gspread` + Google Service Account (free).
 
 Both tabs are auto-created with headers and formulas if they don't exist.
 
-### Dedup storage (`data/seen_jobs.json`)
-
-- JSON dictionary: `{url_hash: {title, company, date_seen}}`
-- Committed to the repo by the GitHub Actions workflow after each run
-- Serves as the fast local dedup layer (Step 2) to avoid wasting LLM calls
-- Google Sheets is the source of truth for tracking; `track.py` also checks the sheet before appending to handle edge cases
-
 ---
 
 ## GitHub Actions Workflow
@@ -174,7 +168,7 @@ Both tabs are auto-created with headers and formulas if they don't exist.
 `.github/workflows/daily_search.yml`:
 - **Schedule**: `0 14 * * *` (10 AM ET daily), gated by `vars.ENABLE_CRON == 'true'`
 - **Manual trigger**: `workflow_dispatch` — always available, regardless of the cron toggle
-- **Steps**: checkout → setup Python 3.11 → install deps → write `config.yml` from `CONFIG_YML` secret → run all 5 pipeline scripts sequentially → commit & push updated `data/` files
+- **Steps**: checkout → setup Python 3.11 → install deps → write `config.yml` from `CONFIG_YML` secret → run all 5 pipeline scripts sequentially
 - `config.yml` is gitignored (contains personal info); the workflow writes it at runtime from a GitHub Secret
 - The daily cron is off by default so users can test via manual dispatch first; set the `ENABLE_CRON` repo variable to `true` to activate it
 - Scripts run in order with env vars injected from GitHub Secrets
@@ -236,8 +230,8 @@ litellm provides a unified `completion()` interface across Claude, OpenAI, and G
 ### Why Google Sheets over a database?
 Google Sheets is user-facing, editable from any device, requires no infrastructure, and is free. Users can update application status, add notes, and share with others without touching code. The Stats tab provides a live dashboard with built-in formulas.
 
-### Why SHA-256 URL hashes for dedup?
-URL strings can be long and messy. A truncated hash (16 hex chars) provides a compact, collision-resistant key for the dedup dictionary while keeping `seen_jobs.json` small.
+### Why dedup from Google Sheets instead of a local file?
+Google Sheets already stores every tracked job with its Apply Link URL. Using it as the dedup source eliminates the need for a local `seen_jobs.json` file, which would contain personal data (job URLs) and require committing to the repo. Direct URL comparison against the sheet is simple and avoids the complexity of hash-based dedup.
 
 ### Why batch scoring?
 Sending 5 jobs per LLM call instead of 1 reduces API round-trips by 5x, cutting both latency and per-request overhead costs. The batch size is configurable if response quality degrades with larger batches.

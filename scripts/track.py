@@ -1,79 +1,28 @@
-"""Step 5: Append ranked jobs to Google Sheet and update seen_jobs.json."""
+"""Step 5: Append ranked jobs to Google Sheet."""
 
-import hashlib
 import json
 import os
 from datetime import datetime
 
-import yaml
+from sheets import get_gspread_client, get_spreadsheet, load_config
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = os.path.join(PROJECT_ROOT, "data")
 
 
-def load_config() -> dict:
-    with open(os.path.join(PROJECT_ROOT, "config.yml"), "r") as f:
-        return yaml.safe_load(f)
-
-
-def url_hash(url: str) -> str:
-    return hashlib.sha256(url.encode()).hexdigest()[:16]
-
-
-def update_seen_jobs(ranked_jobs: list[dict]):
-    """Update the local seen_jobs.json with newly processed jobs."""
-    seen_path = os.path.join(DATA_DIR, "seen_jobs.json")
-
-    if os.path.exists(seen_path):
-        with open(seen_path, "r") as f:
-            seen = json.load(f)
-    else:
-        seen = {}
-
-    today = datetime.utcnow().strftime("%Y-%m-%d")
-    added = 0
-    for job in ranked_jobs:
-        h = url_hash(job.get("job_url", ""))
-        if h not in seen:
-            seen[h] = {
-                "title": job.get("title", ""),
-                "company": job.get("company", ""),
-                "date_seen": today,
-            }
-            added += 1
-
-    with open(seen_path, "w") as f:
-        json.dump(seen, f, indent=2)
-    print(f"Updated seen_jobs.json: {added} new entries (total: {len(seen)})")
-
-
 def append_to_google_sheet(ranked_jobs: list[dict], config: dict):
     """Append ranked jobs to the Google Sheet."""
     import gspread
-    from google.oauth2.service_account import Credentials
 
-    creds_json = os.environ.get("GOOGLE_CREDENTIALS")
-    if not creds_json:
-        print("GOOGLE_CREDENTIALS not set. Skipping Google Sheets update.")
+    gc = get_gspread_client()
+    if gc is None:
+        return
+
+    spreadsheet = get_spreadsheet(gc, config)
+    if spreadsheet is None:
         return
 
     sheets_config = config.get("google_sheets", {})
-    sheet_id = sheets_config.get("sheet_id")
-    if not sheet_id or sheet_id == "YOUR_GOOGLE_SHEET_ID_HERE":
-        print("Google Sheet ID not configured. Skipping Google Sheets update.")
-        return
-
-    # Authenticate
-    creds_dict = json.loads(creds_json)
-    scopes = [
-        "https://www.googleapis.com/auth/spreadsheets",
-        "https://www.googleapis.com/auth/drive",
-    ]
-    creds = Credentials.from_service_account_info(creds_dict, scopes=scopes)
-    gc = gspread.authorize(creds)
-
-    # Open sheet
-    spreadsheet = gc.open_by_key(sheet_id)
     tab_name = sheets_config.get("job_matches_tab", "Job Matches")
 
     try:
@@ -177,16 +126,12 @@ def main():
 
     if not ranked_jobs:
         print("No ranked jobs to track.")
-        update_seen_jobs([])
         return
 
     print(f"Tracking {len(ranked_jobs)} ranked jobs...")
 
     # Update Google Sheet
     append_to_google_sheet(ranked_jobs, config)
-
-    # Update local dedup database
-    update_seen_jobs(ranked_jobs)
 
 
 if __name__ == "__main__":

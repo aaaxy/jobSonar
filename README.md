@@ -7,10 +7,10 @@ Automated daily pipeline that scrapes job listings, ranks them against your resu
 ```
 GitHub Actions (daily cron at 10 AM ET)
   1. SCRAPE  → JobSpy (LinkedIn, Indeed, Glassdoor) + company pages → raw_jobs.json
-  2. DEDUP   → Filter previously seen jobs → new_jobs.json
+  2. DEDUP   → Filter previously seen jobs (via Google Sheets) → new_jobs.json
   3. RANK    → LLM scores each job vs resume → ranked_jobs.json
   4. PUSH    → Email digest of top matches (SendGrid)
-  5. TRACK   → Append to Google Sheet + update seen_jobs.json
+  5. TRACK   → Append to Google Sheet
 ```
 
 ## Requirements

@@ -38,10 +38,3 @@ jobs:
           python scripts/push.py
           python scripts/track.py
 
-      - name: Commit tracking data
-        run: |
-          git config user.name "Job Search Bot"
-          git config user.email "bot@users.noreply.github.com"
-          git add data/
-          git diff --staged --quiet || git commit -m "Update job data $(date +%Y-%m-%d)"
-          git push
