@@ -13,6 +13,8 @@ __pycache__/
 .env
 config.yml
 credentials*.json
+*-key.json
+service-account*.json
 
 # Resume (may contain personal info)
 *.pdf

@@ -32,7 +32,7 @@ def scrape_jobspy(config: dict) -> list[dict]:
                 site_name=["indeed", "linkedin", "glassdoor"],
                 search_term=keyword,
                 location=search.get("location", ""),
-                distance=search.get("distance", 50),
+                distance=search.get("distance"),
                 job_type=search.get("job_type"),
                 is_remote=search.get("remote_only", False),
                 results_wanted=search.get("results_per_source", 25),
