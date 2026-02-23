@@ -64,4 +64,4 @@ if __name__ == "__main__":
     text = extract_resume_text(resume_path)
     print(f"Extracted {len(text)} characters from {resume_path}")
     print("---")
-    print(text[:500])
+    print(text)

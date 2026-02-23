@@ -24,6 +24,11 @@ jobs:
         env:
           CONFIG_YML: ${{ secrets.CONFIG_YML }}
 
+      - name: Write resume file
+        run: echo "$RESUME_TXT" > resume.txt
+        env:
+          RESUME_TXT: ${{ secrets.RESUME_TXT }}
+
       - name: Run pipeline
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}

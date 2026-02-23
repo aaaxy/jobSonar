@@ -61,6 +61,7 @@ Add these secrets to your GitHub repo (Settings → Secrets → Actions):
 | `SENDGRID_API_KEY` | Yes | 100 emails/day free |
 | `GOOGLE_CREDENTIALS` | Yes | Service account JSON contents |
 | `CONFIG_YML` | Yes | Paste full contents of your `config.yml` |
+| `RESUME_TXT` | Yes | Plain text contents of your resume |
 
 ### 6. Deploy
 
