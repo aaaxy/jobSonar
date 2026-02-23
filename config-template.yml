@@ -27,6 +27,8 @@ scoring:
   min_score: 60  # only include jobs scoring >= this in the email
   batch_size: 5  # number of jobs per LLM call
 
+timezone: "America/New_York"  # used for Date Found in Google Sheets and email
+
 google_sheets:
   sheet_id: "YOUR_GOOGLE_SHEET_ID_HERE"  # from the sheet URL
   job_matches_tab: "Job Matches"

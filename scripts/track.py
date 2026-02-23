@@ -3,6 +3,7 @@
 import json
 import os
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 from sheets import get_gspread_client, get_spreadsheet, load_config
 
@@ -46,7 +47,8 @@ def append_to_google_sheet(ranked_jobs: list[dict], config: dict):
         existing_urls = set()
 
     # Prepare new rows
-    today = datetime.utcnow().strftime("%Y-%m-%d")
+    tz_name = config.get("timezone", "America/New_York")
+    today = datetime.now(ZoneInfo(tz_name)).strftime("%Y-%m-%d")
     min_score = config.get("scoring", {}).get("min_score", 60)
     new_rows = []
 
