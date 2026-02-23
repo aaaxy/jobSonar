@@ -23,9 +23,9 @@ def render_email(jobs: list[dict], config: dict) -> str:
     env = Environment(loader=FileSystemLoader(TEMPLATES_DIR))
     template = env.get_template("email_digest.html")
 
-    min_score = config.get("scoring", {}).get("min_score", 60)
+    min_score = config.get("scoring", {}).get("min_score", 50)
     above_min = [j for j in jobs if j.get("score", 0) >= min_score]
-    top_n = config.get("email", {}).get("top_n", 20)
+    top_n = config.get("email", {}).get("top_n", 30)
     display_jobs = above_min[:top_n]
 
     # Top 5 with reasoning
