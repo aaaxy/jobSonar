@@ -1,0 +1,12 @@
+[
+  {
+    "title": "Test Job",
+    "company": "TestCo",
+    "job_url": "https://example.com/job1"
+  },
+  {
+    "title": "Test Job 2",
+    "company": "TestCo2",
+    "job_url": "https://example.com/job2"
+  }
+]
