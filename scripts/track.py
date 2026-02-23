@@ -108,7 +108,7 @@ def _update_stats_tab(spreadsheet, sheets_config: dict):
         ["Average score", f"=IFERROR(AVERAGE('{job_tab_name}'!B2:B),0)"],
     ]
 
-    stats_ws.update("A1", stats_data, value_input_option="USER_ENTERED")
+    stats_ws.update(stats_data, "A1", value_input_option="USER_ENTERED")
     print("Stats tab updated.")
 
 
