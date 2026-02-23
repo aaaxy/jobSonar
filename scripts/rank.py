@@ -12,15 +12,26 @@ from resume_parser import extract_resume_text, find_resume
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = os.path.join(PROJECT_ROOT, "data")
 
-SCORING_PROMPT = """You are a job relevance scorer. Given a candidate's resume and a batch of job postings, rate each job's relevance to the candidate on a scale of 0-100.
+SCORING_PROMPT = """You are an expert job-candidate matching system. Given a candidate's resume and a batch of job postings, evaluate how well the candidate fits each role.
 
-Consider:
-- Skills match (technical skills, tools, languages)
-- Experience level alignment
-- Industry/domain relevance
-- Role responsibilities match
+Score each job from 0-100 using these weighted criteria:
 
-For each job, return a JSON object with: score (0-100), reasoning (1-2 sentences), key_matches (list of matching skills/qualifications).
+1. TECHNICAL SKILLS (40%): How well do the candidate's programming languages, frameworks, tools, and technical skills match the job requirements? Distinguish between must-have and nice-to-have skills.
+
+2. EXPERIENCE LEVEL (25%): Does the candidate's years of experience and seniority match what the role expects? A senior candidate applying to a junior role or vice versa should score lower.
+
+3. DOMAIN & INDUSTRY (20%): Does the candidate's background align with the company's industry and the problem domain of the role (e.g. NLP, computer vision, recommender systems, autonomous driving)?
+
+4. ROLE FIT (15%): Do the day-to-day responsibilities match what the candidate has done or is positioned to do? Consider research vs engineering focus, IC vs management, and team collaboration style.
+
+Scoring guidelines:
+- 90-100: Near-perfect match — candidate meets almost all requirements and has relevant domain experience
+- 75-89: Strong match — most key skills align, minor gaps in domain or seniority
+- 60-74: Moderate match — some skills transfer, but notable gaps in requirements or experience level
+- 40-59: Weak match — limited overlap, candidate would need significant ramp-up
+- 0-39: Poor match — fundamentally different skill set or experience level
+
+Be rigorous. Most jobs should NOT score above 80 unless the match is genuinely strong. Avoid score inflation.
 
 RESUME:
 {resume_text}
