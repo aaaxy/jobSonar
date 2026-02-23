@@ -25,4 +25,5 @@ resume.txt
 .claude/
 
 # Generated data (pipeline outputs + personal job search history)
+data/
 sendgrid.env
