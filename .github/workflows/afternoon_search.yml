@@ -1,0 +1,44 @@
+name: Afternoon Job Search
+on:
+  schedule:
+    - cron: '0 19 * * *'  # 2 PM ET daily
+  workflow_dispatch: {}    # allow manual trigger
+
+jobs:
+  search:
+    if: github.event_name == 'workflow_dispatch' || vars.ENABLE_CRON == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Write config file
+        run: |
+          echo "$CONFIG_YML" > config.yml
+          python -c "import yaml; yaml.safe_load(open('config.yml'))" || { echo "ERROR: invalid config"; exit 1; }
+        env:
+          CONFIG_YML: ${{ secrets.CONFIG_YML }}
+
+      - name: Write resume file
+        run: echo "$RESUME_TXT" > resume.txt
+        env:
+          RESUME_TXT: ${{ secrets.RESUME_TXT }}
+
+      - name: Run pipeline
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
+          GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+        run: |
+          python scripts/scrape.py --hours-old 5
+          python scripts/dedup.py
+          python scripts/rank.py
+          python scripts/push.py
+          python scripts/track.py

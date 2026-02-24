@@ -145,7 +145,16 @@ def deduplicate_by_url(jobs: list[dict]) -> list[dict]:
 
 
 def main():
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--hours-old", type=int, help="Override hours_old from config")
+    args = parser.parse_args()
+
     config = load_config()
+    if args.hours_old is not None:
+        config["search"]["hours_old"] = args.hours_old
+        print(f"Overriding hours_old to {args.hours_old}")
 
     # Scrape from all sources
     jobspy_jobs = scrape_jobspy(config)
