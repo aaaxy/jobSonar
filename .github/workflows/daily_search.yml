@@ -1,7 +1,8 @@
 name: Daily Job Search
 on:
   schedule:
-    - cron: '0 14 * * *'  # 10 AM ET daily
+    - cron: '0 15 * * *'  # 10 AM EST (Nov-Mar)
+    - cron: '0 14 * * *'  # 10 AM EDT (Mar-Nov)
   workflow_dispatch: {}    # allow manual trigger
 
 jobs:
@@ -9,6 +10,21 @@ jobs:
     if: github.event_name == 'workflow_dispatch' || vars.ENABLE_CRON == 'true'
     runs-on: ubuntu-latest
     steps:
+      - name: Check DST and skip wrong cron
+        if: github.event_name == 'schedule'
+        run: |
+          OFFSET=$(TZ=America/New_York date +%z | head -c3)
+          CRON="${{ github.event.schedule }}"
+          if [ "$OFFSET" = "-05" ] && [ "$CRON" = "0 14 * * *" ]; then
+            echo "EST period but EDT cron fired — skipping"
+            exit 1
+          fi
+          if [ "$OFFSET" = "-04" ] && [ "$CRON" = "0 15 * * *" ]; then
+            echo "EDT period but EST cron fired — skipping"
+            exit 1
+          fi
+          echo "Correct cron for current timezone offset ($OFFSET)"
+
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
