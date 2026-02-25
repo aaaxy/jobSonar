@@ -11,29 +11,34 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check DST and skip wrong cron
+        id: dst
         if: github.event_name == 'schedule'
         run: |
           OFFSET=$(TZ=America/New_York date +%z | head -c3)
           CRON="${{ github.event.schedule }}"
           if [ "$OFFSET" = "-05" ] && [ "$CRON" = "0 14 * * *" ]; then
             echo "EST period but EDT cron fired — skipping"
-            exit 1
-          fi
-          if [ "$OFFSET" = "-04" ] && [ "$CRON" = "0 15 * * *" ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          elif [ "$OFFSET" = "-04" ] && [ "$CRON" = "0 15 * * *" ]; then
             echo "EDT period but EST cron fired — skipping"
-            exit 1
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Correct cron for current timezone offset ($OFFSET)"
           fi
-          echo "Correct cron for current timezone offset ($OFFSET)"
 
       - uses: actions/checkout@v4
+        if: steps.dst.outputs.skip != 'true'
       - uses: actions/setup-python@v5
+        if: steps.dst.outputs.skip != 'true'
         with:
           python-version: '3.11'
 
       - name: Install dependencies
+        if: steps.dst.outputs.skip != 'true'
         run: pip install -r requirements.txt
 
       - name: Write config file
+        if: steps.dst.outputs.skip != 'true'
         run: |
           echo "$CONFIG_YML" > config.yml
           python -c "import yaml; yaml.safe_load(open('config.yml'))" || { echo "ERROR: invalid config"; exit 1; }
@@ -41,11 +46,13 @@ jobs:
           CONFIG_YML: ${{ secrets.CONFIG_YML }}
 
       - name: Write resume file
+        if: steps.dst.outputs.skip != 'true'
         run: echo "$RESUME_TXT" > resume.txt
         env:
           RESUME_TXT: ${{ secrets.RESUME_TXT }}
 
       - name: Run pipeline
+        if: steps.dst.outputs.skip != 'true'
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
