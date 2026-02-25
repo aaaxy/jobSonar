@@ -106,7 +106,9 @@ def scrape_company_pages(config: dict) -> list[dict]:
                     for kw in ["engineer", "developer", "manager", "analyst", "designer"]
                 ):
                     if not href.startswith("http"):
-                        href = url.rstrip("/") + "/" + href.lstrip("/")
+                        from urllib.parse import urlparse
+                        parsed = urlparse(url)
+                        href = f"{parsed.scheme}://{parsed.netloc}/{href.lstrip('/')}"
                     job_links.append({"title": text, "url": href})
 
             for link in job_links:
