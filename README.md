@@ -19,7 +19,11 @@ GitHub Actions (daily cron at 10 AM ET)
 
 ## Setup
 
-### 1. Set up Python environment
+### 1. Fork this repo
+
+Click **Fork** on the top-right of this GitHub page. This gives you your own copy where you can configure your resume, search preferences, API keys, and Google Sheet independently. All workflows run under your own GitHub account.
+
+### 2. Set up Python environment
 
 ```bash
 python3.11 -m venv .venv
@@ -29,11 +33,11 @@ pip install -r requirements.txt
 
 If you don't have Python 3.11, install it via [pyenv](https://github.com/pyenv/pyenv) or `brew install python@3.11`.
 
-### 2. Add your resume
+### 3. Add your resume
 
 Place your resume as `resume.pdf`, `resume.docx`, or `resume.txt` in the project root.
 
-### 3. Edit `config.yml`
+### 4. Edit `config.yml`
 
 - Set search keywords, location, job type preferences
 - Choose your LLM provider (`claude`, `openai`, or `gemini`)
@@ -41,7 +45,7 @@ Place your resume as `resume.pdf`, `resume.docx`, or `resume.txt` in the project
 - Add your Google Sheet ID
 - Optionally add company career page URLs
 
-### 4. Google Sheets setup
+### 5. Google Sheets setup
 
 1. Create a Google Cloud project → enable Sheets API + Drive API
 2. Create a Service Account → download the credentials JSON
@@ -49,7 +53,7 @@ Place your resume as `resume.pdf`, `resume.docx`, or `resume.txt` in the project
 4. Copy the sheet ID from the URL (`https://docs.google.com/spreadsheets/d/SHEET_ID/edit`)
 5. Add the sheet ID to `config.yml`
 
-### 5. GitHub Secrets
+### 6. GitHub Secrets
 
 Add these secrets to your GitHub repo (Settings → Secrets → Actions):
 
@@ -63,7 +67,7 @@ Add these secrets to your GitHub repo (Settings → Secrets → Actions):
 | `CONFIG_YML` | Yes | Paste full contents of your `config.yml` |
 | `RESUME_TXT` | Yes | Plain text contents of your resume |
 
-### 6. Deploy
+### 7. Deploy
 
 Push to GitHub. You can trigger the workflow manually from the Actions tab at any time.
 
