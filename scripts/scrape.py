@@ -29,7 +29,7 @@ def scrape_jobspy(config: dict) -> list[dict]:
         print(f"Scraping for: {keyword}")
         try:
             df = scrape_jobs(
-                site_name=["indeed", "linkedin"], # "glassdoor"
+                site_name=["indeed", "linkedin", "glassdoor"],
                 search_term=keyword,
                 location=search.get("location", ""),
                 distance=search.get("distance"),
