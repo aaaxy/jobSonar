@@ -1,6 +1,6 @@
-# Job Search Agent
+# jobSonar
 
-Automated daily pipeline that scrapes job listings, ranks them against your resume using an LLM, emails a digest of top matches, and tracks application status in Google Sheets. Runs on GitHub Actions (free).
+Automated job-search agent: a daily pipeline that scrapes job listings, ranks them against your resume with an LLM judge, emails a digest of top matches, and tracks application status in Google Sheets. Runs free on GitHub Actions.
 
 ## Pipeline
 
